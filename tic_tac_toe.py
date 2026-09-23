@@ -94,26 +94,56 @@ def rollout(board_state, player):
     return terminal_check(state)
 
 
-current_board = np.zeros((3, 3))
+# ==================================================
+# MINIMAX PLAYER (for testing against MCTS)
+# ==================================================
 
 
-# # Tests
+# Computing the minimax value
+def minimax(board_state, player):
+    if terminal_check(board_state) is not None:
+        return terminal_check(board_state)
 
-# # Ongoing game
-# board = np.array([[1, 0, -1], [0, 1, 0], [0, 0, 0]])
-# print(terminal_check(board))
+    values = []
+
+    for action in legal_actions(board_state):
+        new_state = next_state(board_state, action, player)
+
+        value = minimax(new_state, -player)
+        values.append(value)
+
+    if player == 1:
+        return max(values)
+    else:
+        return min(values)
 
 
-# # Player 1 wins
-# board = np.array([[1, -1, 0], [0, 1, -1], [0, 0, 1]])
-# print(terminal_check(board))
+# Using minimax to decide the next move
+def minimax_action(board_state, player):
+    actions = legal_actions(board_state)
 
+    best_action = None
 
-# # Player 2 wins
-# board = np.array([[-1, 1, 0], [-1, 1, 0], [-1, 0, 1]])
-# print(terminal_check(board))
+    if player == 1:
+        best_value = -np.inf
 
+        for action in actions:
+            new_state = next_state(board_state, action, player)
+            value = minimax(new_state, -player)
 
-# # Draw
-# board = np.array([[1, -1, 1], [1, -1, -1], [-1, 1, 1]])
-# print(terminal_check(board))
+            if value > best_value:
+                best_value = value
+                best_action = action
+
+    else:
+        best_value = np.inf
+
+        for action in actions:
+            new_state = next_state(board_state, action, player)
+            value = minimax(new_state, -player)
+
+            if value < best_value:
+                best_value = value
+                best_action = action
+
+    return best_action
